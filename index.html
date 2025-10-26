@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT and ML-based Water Flow Estimation | INDICON 2023</title>
+    <style>
+        :root {
+            --primary-color: #0d9488;
+            --primary-dark: #0f766e;
+            --primary-light: #14b8a6;
+            --accent-color: #10b981;
+            --text-dark: #1f2937;
+            --text-medium: #4b5563;
+            --text-light: #6b7280;
+            --bg-light: #f9fafb;
+            --bg-white: #ffffff;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+        }
+
+        .nav {
+            position: sticky;
+            top: 0;
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            z-index: 1000;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .nav-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--text-medium);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero-meta {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .hero-meta-item {
+            font-size: 1.1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .note {
+            margin-top: 1.5rem;
+            font-size: 0.95rem;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .section {
+            background: var(--bg-white);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--primary-color);
+            display: inline-block;
+        }
+
+        .section-subtitle {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .abstract-card {
+            background: linear-gradient(135deg, #f0fdfa 0%, #ecfdf5 100%);
+            border-left: 4px solid var(--primary-color);
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+        }
+
+        .abstract-text {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+            text-align: justify;
+        }
+
+        .keywords {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .keywords strong {
+            color: var(--primary-dark);
+        }
+
+        .highlight-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .highlight-card {
+            background: linear-gradient(135deg, #ecfdf5 0%, #f0fdfa 100%);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--primary-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .highlight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .highlight-card h3 {
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .highlight-card p {
+            color: var(--text-medium);
+            line-height: 1.6;
+        }
+
+        .checkmark {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        thead {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .figure-container {
+            margin: 2.5rem auto;
+            text-align: center;
+            max-width: 100%;
+        }
+
+        .figure-single {
+            max-width: 400px;
+            width: 100%;
+            height: auto;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+        }
+
+        .figure-medium {
+            max-width: 600px;
+            width: 100%;
+            height: auto;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+        }
+
+        .figure-row-2 {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .figure-row-3 {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .figure-item {
+            flex: 1;
+            min-width: 250px;
+            max-width: 350px;
+        }
+
+        .figure-item img {
+            width: 100%;
+            height: auto;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+        }
+
+        .subfigure-label {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-medium);
+            font-style: italic;
+        }
+
+        .figure-caption {
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-medium);
+            line-height: 1.6;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+            padding: 0 1rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .comparison-card {
+            background: var(--bg-white);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            transition: border-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .comparison-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .comparison-card h4 {
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .comparison-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .comparison-card li {
+            padding: 0.5rem 0;
+            color: var(--text-medium);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-card li:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-card strong {
+            color: var(--text-dark);
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .metric-box {
+            background: linear-gradient(135deg, #f0fdfa 0%, #ecfdf5 100%);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            text-align: center;
+            border: 1px solid var(--primary-color);
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-medium);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .metric-unit {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .benefits-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .benefits-list li {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            color: var(--text-medium);
+            line-height: 1.6;
+        }
+
+        .benefits-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+
+        .footer {
+            background: var(--text-dark);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links span {
+            color: var(--primary-light);
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.75rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            .nav-container {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                gap: 0.75rem;
+            }
+
+            .hero-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .figure-row-2, .figure-row-3 {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .figure-item {
+                max-width: 100%;
+            }
+        }
+
+        .scroll-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+        }
+
+        .scroll-to-top:hover {
+            transform: translateY(-5px);
+            background: var(--primary-dark);
+        }
+
+        /* Impact Banner */
+        .impact-banner {
+            background: linear-gradient(135deg, #c00015 0%, #ff5459 100%);
+            color: white;
+            padding: 3rem 2rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .impact-banner-title {
+            text-align: center;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .impact-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .impact-stat {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .impact-stat:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .impact-stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .impact-stat-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            opacity: 0.95;
+        }
+
+        /* Did You Know Box */
+        .did-you-know {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+            border-left: 5px solid #c00015;
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .did-you-know {
+                background: linear-gradient(135deg, rgba(192, 0, 21, 0.15) 0%, rgba(255, 84, 89, 0.15) 100%);
+            }
+        }
+
+        .dyk-icon {
+            font-size: 3rem;
+            flex-shrink: 0;
+        }
+
+        .dyk-content h3 {
+            color: #c00015;
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .dyk-content h3 {
+                color: #ff5459;
+            }
+        }
+
+        .dyk-content p {
+            color: var(--text-dark);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        /* Why Matters Card */
+        .why-matters-card {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+            border-left: 4px solid #c00015;
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .why-matters-card {
+                background: linear-gradient(135deg, rgba(192, 0, 21, 0.15) 0%, rgba(255, 84, 89, 0.15) 100%);
+            }
+        }
+
+        /* Acknowledgments Content */
+        .acknowledgments-content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--bg-white);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--border-color);
+        }
+
+        .acknowledgments-content p {
+            line-height: 1.8;
+            color: var(--text-medium);
+        }
+
+        @media (max-width: 768px) {
+            .impact-banner-title {
+                font-size: 1.35rem;
+            }
+
+            .impact-stat-number {
+                font-size: 2.25rem;
+            }
+
+            .did-you-know {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .dyk-icon {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="nav-title">INDICON 2023</div>
+            <div class="nav-links">
+                <a href="#abstract">Abstract</a>
+                <a href="#problem">Challenge</a>
+                <a href="#solution">Solution</a>
+                <a href="#results">Results</a>
+                <a href="#impact">Impact</a>
+                <a href="#acknowledgments">Acknowledgments</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="container">
+            <h1>IoT and ML-based Water Flow Estimation using Pressure Sensor</h1>
+            <div class="hero-meta">
+                <div class="hero-meta-item">M. Gandhi &bull; A. Mathew &bull; S. Chaudhari &bull; R. Shaik &bull; A. Vattem</div>
+            </div>
+            <div class="hero-meta">
+                <div class="hero-meta-item">International Institute of Information Technology Hyderabad</div>
+            </div>
+            <div class="hero-meta" style="margin-top: 1rem;">
+                <div class="badge">INDICON 2023</div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="container">
+        <!-- Abstract Section -->
+        <section id="abstract" class="section">
+            <h2 class="section-title">Abstract</h2>
+            <div class="abstract-card">
+                <p class="abstract-text">
+                    This study presents an Internet of Things (IoT)-based system that utilises machine learning (ML) techniques to estimate water flow through pipes based on pressure. The system incorporates an ESP-32 microcontroller, a Danfoss MBS 3000 pressure sensor, and a flow meter deployed at three locations to collect data for three months. To model the relationship between pressure and flow rate, ML algorithms such as linear regression (LR), support vector regression (SVR), and convolutional neural network (CNN) were trained, analysed, and compared. By establishing a model to estimate the flow rate based on pressure, the need for a flow meter in the setup can be eliminated. The system's low-cost, easy-to-implement, and non-invasive nature makes it suitable for widespread adoption in residential areas, offering a promising solution for optimising water distribution and reducing water wastage.
+                </p>
+                <div class="keywords">
+                    <strong>Keywords:</strong> correlation, estimation, flow rate, IoT, ML, pressure
+                </div>
+            </div>
+        </section>
+
+        <!-- Problem Statement Section -->
+        <section id="problem" class="section">
+            <h2 class="section-title">The Challenge</h2>
+            <div class="highlight-cards">
+                <div class="highlight-card">
+                    <h3><span class="checkmark">💧</span> Water Scarcity Crisis</h3>
+                    <p>Water scarcity is a significant global threat affecting billions of people. Effective monitoring and management systems are critical to address this growing challenge.</p>
+                </div>
+                <div class="highlight-card">
+                    <h3><span class="checkmark">💰</span> Expensive Traditional Methods</h3>
+                    <p>Traditional flow meters are expensive, require invasive installation, and are often impractical for widespread deployment in residential and municipal settings.</p>
+                </div>
+                <div class="highlight-card">
+                    <h3><span class="checkmark">📊</span> Need for Real-Time Monitoring</h3>
+                    <p>There is a critical need for accurate, real-time water monitoring systems that can provide actionable insights for optimizing distribution and reducing wastage.</p>
+                </div>
+                <div class="highlight-card">
+                    <h3><span class="checkmark">🔧</span> IoT and ML Solutions</h3>
+                    <p>IoT and machine learning offer promising solutions for automated, non-invasive water monitoring that can be scaled across diverse infrastructure environments.</p>
+                </div>
+            </div>
+        </section>
+
+
+
+        <!-- Approach Section -->
+        <section id="solution" class="section">
+            <h2 class="section-title">Our Solution</h2>
+            
+            <h3 class="section-subtitle">Hardware Setup</h3>
+            <ul class="benefits-list" style="margin-bottom: 1.5rem;">
+                <li><strong>ESP-32 Microcontroller:</strong> Core processing unit for data collection and transmission</li>
+                <li><strong>Danfoss MBS 3000 Pressure Sensor:</strong> 0-16 bar range, 4-20 mA output, industrial-grade accuracy</li>
+                <li><strong>Shenitech Ultrasonic Flow Meter:</strong> Ground truth measurement for model validation</li>
+                <li><strong>Three Deployment Nodes:</strong> PH0100, PH0302, PH0303 at IIIT-H campus</li>
+                <li><strong>Cloud Platform:</strong> ThingSpeak for real-time data storage and visualization</li>
+            </ul>
+
+            <div class="figure-container">
+                <img src="images/paper1_Block-Architecture.png" alt="Block architecture of the node" class="figure-single">
+                <p class="figure-caption"><strong>Figure 1:</strong> Block architecture of the node</p>
+            </div>
+
+            <div class="figure-container">
+                <img src="images/paper1_node_location.png" alt="Locations of deployed nodes" class="figure-single">
+                <p class="figure-caption"><strong>Figure 2:</strong> Locations of deployed nodes</p>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-row-2">
+                    <div class="figure-item">
+                        <img src="images/paper1_Hardware_ph03.png" alt="Pressure sensor and digital watermeter">
+                        <p class="subfigure-label">(a)</p>
+                    </div>
+                    <div class="figure-item">
+                        <img src="images/paper1_Hardware.png" alt="IP65 box with microcontroller">
+                        <p class="subfigure-label">(b)</p>
+                    </div>
+                </div>
+                <p class="figure-caption"><strong>Figure 3:</strong> One of the deployed units. The digital meter and pressure node are connected to the microcontroller in an IP65 box inside the pump house. (a) Pressure sensor and digital watermeter (b) IP65 box containing microcontroller and SMPS</p>
+            </div>
+
+
+
+            <h3 class="section-subtitle">Data Collection</h3>
+            <div class="metric-grid">
+                <div class="metric-box">
+                    <div class="metric-label">Duration</div>
+                    <div class="metric-value">3</div>
+                    <div class="metric-unit">months</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Data Points</div>
+                    <div class="metric-value">75,000+</div>
+                    <div class="metric-unit">per node</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Sampling Interval</div>
+                    <div class="metric-value">90</div>
+                    <div class="metric-unit">seconds</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Parameters</div>
+                    <div class="metric-value">4</div>
+                    <div class="metric-unit">measured values</div>
+                </div>
+            </div>
+            <p style="line-height: 1.8; color: var(--text-medium); margin-top: 1.5rem;">
+                <strong>Measured Parameters:</strong> Timestamp, pressure voltage, instantaneous flow rate, total water flow
+            </p>
+
+            <h3 class="section-subtitle">Machine Learning Models</h3>
+            <p style="line-height: 1.8; color: var(--text-medium); margin-bottom: 1rem;">
+                Three ML algorithms were evaluated to model the pressure-flow relationship:
+            </p>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h4>Linear Regression (LR)</h4>
+                    <p style="color: var(--text-medium); font-size: 0.9rem;">Baseline model establishing linear relationship between pressure and flow rate.</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>Support Vector Regression (SVR)</h4>
+                    <p style="color: var(--text-medium); font-size: 0.9rem;">Non-linear modeling capable of capturing complex pressure-flow relationships.</p>
+                </div>
+                <div class="comparison-card">
+                    <h4>Convolutional Neural Network (CNN)</h4>
+                    <p style="color: var(--text-medium); font-size: 0.9rem;">2 convolutional layers, Adam optimizer, 100 epochs. Deep learning approach for pattern recognition.</p>
+                </div>
+            </div>
+            <p style="line-height: 1.8; color: var(--text-medium); margin-top: 1rem;">
+                <strong>Validation:</strong> k-fold cross-validation for robust performance evaluation across all deployment locations.
+            </p>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results" class="section">
+            <h2 class="section-title">Results &amp; Findings</h2>
+            
+            <h3 class="section-subtitle">Correlation Analysis</h3>
+            <p style="line-height: 1.8; color: var(--text-medium); margin-bottom: 1rem;">
+                High correlation observed between pressure and flow rate across all deployment locations:
+            </p>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Pressure-Flow Correlation</th>
+                            <th>Pressure-Truth Correlation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PH0100</td>
+                            <td style="color: var(--accent-color); font-weight: 600;">0.970</td>
+                            <td style="color: var(--accent-color); font-weight: 600;">0.993</td>
+                        </tr>
+                        <tr>
+                            <td>PH0302</td>
+                            <td style="color: var(--accent-color); font-weight: 600;">0.973</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>PH0303</td>
+                            <td style="color: var(--accent-color); font-weight: 600;">0.990</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
+
+            <h3 class="section-subtitle">Model Performance</h3>
+            <p style="line-height: 1.8; color: var(--text-medium); margin-bottom: 1rem;">
+                Three machine learning algorithms were trained and compared for flow estimation accuracy:
+            </p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Linear Regression</th>
+                            <th>SVR</th>
+                            <th>CNN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" style="background: var(--color-bg-1); font-weight: 600;">Model Accuracy (R² Score)</td>
+                        </tr>
+                        <tr>
+                            <td>PH0100</td>
+                            <td>0.942</td>
+                            <td>0.969</td>
+                            <td style="color: var(--accent-color); font-weight: 600;">0.974</td>
+                        </tr>
+                        <tr>
+                            <td>PH0302</td>
+                            <td>0.946</td>
+                            <td>0.981</td>
+                            <td style="color: var(--accent-color); font-weight: 600;">0.984</td>
+                        </tr>
+                        <tr>
+                            <td>PH0303</td>
+                            <td>0.980</td>
+                            <td style="color: var(--accent-color); font-weight: 600;">0.984</td>
+                            <td style="color: var(--accent-color); font-weight: 600;">0.984</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="background: var(--color-bg-1); font-weight: 600;">Root Mean Square Error (RMSE)</td>
+                        </tr>
+                        <tr>
+                            <td>PH0100</td>
+                            <td>0.873</td>
+                            <td>0.635</td>
+                            <td style="color: var(--accent-color); font-weight: 600;">0.579</td>
+                        </tr>
+                        <tr>
+                            <td>PH0302</td>
+                            <td>0.450</td>
+                            <td>0.253</td>
+                            <td style="color: var(--accent-color); font-weight: 600;">0.232</td>
+                        </tr>
+                        <tr>
+                            <td>PH0303</td>
+                            <td>0.302</td>
+                            <td style="color: var(--accent-color); font-weight: 600;">0.269</td>
+                            <td>0.273</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="figure-container">
+                <img src="images/paper1_ph0100_combined_5.png" alt="Processed Data" class="figure-medium">
+                <p class="figure-caption"><strong>Figure 4:</strong> Processed Data</p>
+            </div>
+
+            <div class="figure-container">
+                <img src="images/paper1_ph0100_normalized_combined_5.png" alt="Normalized Data" class="figure-medium">
+                <p class="figure-caption"><strong>Figure 5:</strong> Normalized Data</p>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-row-3">
+                    <div class="figure-item">
+                        <img src="images/paper1_ph0100.png" alt="PH0100 results">
+                        <p class="subfigure-label">(a) PH0100</p>
+                    </div>
+                    <div class="figure-item">
+                        <img src="images/paper1_ph0302.png" alt="PH0302 results">
+                        <p class="subfigure-label">(b) PH0302</p>
+                    </div>
+                    <div class="figure-item">
+                        <img src="images/paper1_ph0303.png" alt="PH0303 results">
+                        <p class="subfigure-label">(c) PH0303</p>
+                    </div>
+                </div>
+                <p class="figure-caption"><strong>Figure 6:</strong> Results of ML models trained for all three nodes</p>
+            </div>
+        </section>
+
+            <h3 class="section-subtitle" style="margin-top: 2.5rem;">Key Findings</h3>
+            <div class="highlight-cards">
+                <div class="highlight-card">
+                    <h3><span class="checkmark">✓</span> All Models Achieved &gt;90% Accuracy</h3>
+                    <p>All three ML models (LR, SVR, CNN) demonstrated R² values above 0.94 across all locations, validating the pressure-based approach.</p>
+                </div>
+                <div class="highlight-card">
+                    <h3><span class="checkmark">✓</span> CNN Models Provided Best Results</h3>
+                    <p>Convolutional Neural Networks achieved the highest accuracy with lowest RMSE values across most deployment nodes.</p>
+                </div>
+                <div class="highlight-card">
+                    <h3><span class="checkmark">✓</span> Strong Correlation Validates Approach</h3>
+                    <p>High correlation coefficients (0.97-0.99) between pressure and flow demonstrate the feasibility of eliminating expensive flow meters.</p>
+                </div>
+                <div class="highlight-card">
+                    <h3><span class="checkmark">✓</span> No Calibration Needed</h3>
+                    <p>Models performed consistently across different locations without site-specific calibration, enabling easy deployment.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Impact & Applications Section -->
+        <section id="impact" class="section">
+            <h2 class="section-title">Impact &amp; Applications</h2>
+            <ul class="benefits-list">
+                <li><strong>Low-Cost Alternative:</strong> Pressure sensors are significantly less expensive than traditional flow meters</li>
+                <li><strong>Non-Invasive Measurement:</strong> Easy installation without disrupting existing infrastructure</li>
+                <li><strong>Easy Implementation:</strong> Suitable for widespread adoption in residential areas</li>
+                <li><strong>Reduces Water Wastage:</strong> Real-time monitoring enables detection of leaks and optimization of distribution</li>
+                <li><strong>Scalable Solution:</strong> Can be deployed across diverse infrastructure environments from homes to smart cities</li>
+            </ul>
+        </section>
+
+        <!-- Acknowledgments Section -->
+        <section id="acknowledgments" class="section">
+            <h2 class="section-title">Acknowledgments</h2>
+            <div class="acknowledgments-content">
+                <p>
+                    The authors would like to acknowledge the support of the following organizations and initiatives:
+                </p>
+                <ul class="benefits-list" style="margin-top: 1.5rem;">
+                    <li>Ministry of Electronics and Information Technology (MEITY), Government of India</li>
+                    <li>Smart City Living Lab project</li>
+                    <li>Department of Science &amp; Technology, Water Technology Initiative</li>
+                    <li>Advanced Centre for Integrated Water Resources Management (ACIWRM)</li>
+                    <li>TIH Foundation for IoT &amp; IoE at IIT Bombay</li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">INDICON 2023</p>
+            <p>IEEE 20th India Council International Conference</p>
+            <div class="footer-links">
+                <span>Published 2023</span>
+                <span>•</span>
+                <span>IIIT Hyderabad</span>
+                <span>•</span>
+                <span>India</span>
+            </div>
+        </div>
+    </footer>
+
+    <div class="scroll-to-top" id="scrollTop">
+        ↑
+    </div>
+
+    <script>
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Scroll to top button
+        const scrollTopBtn = document.getElementById('scrollTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Highlight active nav link
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('.nav-links a');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.color = '';
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.style.color = 'var(--primary-color)';
+                    link.style.fontWeight = '600';
+                } else {
+                    link.style.fontWeight = '400';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
